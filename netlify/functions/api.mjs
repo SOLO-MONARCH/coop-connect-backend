@@ -1,4 +1,4 @@
-const API_BASE_URL = (process.env.API_BASE_URL || "https://coop-connect-api.onrender.com").replace(/\/$/, "");
+const API_BASE_URL = (process.env.API_BASE_URL || "https://coop-connect-backend-2.onrender.com").replace(/\/$/, "");
 
 export async function handler(event) {
   if (event.httpMethod === "OPTIONS") {
