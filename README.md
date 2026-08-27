@@ -19,3 +19,12 @@ Use a Python-capable host for this service and configure:
 - `FRONTEND_ORIGINS`: comma-separated frontend origins, such as `https://your-site.netlify.app`.
 
 The included `Procfile` starts the service using the host-provided `PORT`.
+
+## Netlify deployment
+
+Deploy the repository to Netlify using the included `netlify.toml`. Deploy the
+FastAPI service separately with `render.yaml`, then set the Netlify environment
+variable `API_BASE_URL` to the public Render URL, for example
+`https://coop-connect-api.onrender.com`. Also set the Render variable
+`FRONTEND_ORIGINS` to the Netlify site URL. Netlify's `/api/*` redirect then
+proxies all browser requests to FastAPI.

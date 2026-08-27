@@ -1,10 +1,12 @@
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException, Depends
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import List, Optional
 from sqlalchemy.orm import Session
 import math
 import os
+from pathlib import Path
 
 import models
 from database import engine, SessionLocal
@@ -19,13 +21,19 @@ allowed_origins = [
     origin.strip() for origin in configured_origins.split(",") if origin.strip()
 ]
 
+BASE_DIR = Path(__file__).resolve().parent
+
 @app.get("/")
 def read_root():
-    return {
-        "status": "online",
-        "message": "Welcome to CO-OP CONNECT API",
-        "docs": "/docs"
-    }
+    return FileResponse(BASE_DIR / "index.html")
+
+@app.get("/styles.css")
+def read_styles():
+    return FileResponse(BASE_DIR / "styles.css")
+
+@app.get("/app.js")
+def read_app_js():
+    return FileResponse(BASE_DIR / "app.js")
 
 # Enable CORS for Flutter & React integration
 app.add_middleware(
@@ -167,6 +175,14 @@ def create_booking(booking: BookingRequest, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_booking)
     return {"message": "Booking created", "booking_id": new_booking.id, "status": new_booking.status}
+
+@app.get("/api/bookings")
+def get_bookings(db: Session = Depends(get_db)):
+    return {"bookings": db.query(models.Booking).order_by(models.Booking.id.desc()).all()}
+
+@app.get("/api/users")
+def get_users(db: Session = Depends(get_db)):
+    return {"users": db.query(models.User).order_by(models.User.id.desc()).all()}
 
 # 6. UPDATE BOOKING STATUS
 @app.put("/api/bookings/{booking_id}/status")

@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Co-op Connect</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand-block">
+          <div class="brand-mark">CC</div>
+          <div class="brand-copy">
+            <div class="brand-top">CO-OP</div>
+            <div class="brand-bottom">CONNECT</div>
+          </div>
+        </div>
+
+        <div class="brand-sub">SMART WORKFORCE GRID</div>
+
+        <nav class="nav" aria-label="Sidebar navigation">
+          <a href="#command-center" class="nav-item active"><span class="nav-icon">▣</span><span>Command Center</span></a>
+          <a href="#requestSection" class="nav-item"><span class="nav-icon">✦</span><span>Citizen Dispatch</span></a>
+          <a href="#workerNetwork" class="nav-item"><span class="nav-icon">◌</span><span>Worker Network</span></a>
+          <a href="#bookings" class="nav-item"><span class="nav-icon">▤</span><span>Bookings</span></a>
+          <a href="#customers" class="nav-item"><span class="nav-icon">◔</span><span>Customers</span></a>
+          <a href="#analytics" class="nav-item"><span class="nav-icon">▥</span><span>Analytics</span></a>
+          <a href="#forecast" class="nav-item"><span class="nav-icon">▣</span><span>AI Forecast</span></a>
+          <a href="#requestSection" class="nav-item"><span class="nav-icon">↗</span><span>Map Match Search</span></a>
+        </nav>
+      </aside>
+
+      <main class="main-panel" id="command-center">
+        <header class="topbar">
+          <div>
+            <div class="header-kicker">SIH · CIVIC CO-OPERATION PLATFORM</div>
+            <h1 class="header-title">Command Center</h1>
+          </div>
+          <div class="system-pills">
+            <span class="pill"><span class="dot"></span>System ready</span>
+            <span class="pill">Network live</span>
+          </div>
+        </header>
+
+        <section class="hero-panel">
+          <div class="hero-grid">
+            <div class="hero-copy">
+              <div class="subhead">CO-OPERATION STARTS HERE</div>
+              <h2>At the right place.</h2>
+              <p>One interface for citizen requests, cooperative workers, geospatial dispatch and demand intelligence.</p>
+              <div class="cta-row">
+                <button id="createRequestBtn" class="primary-btn" type="button">Create service request →</button>
+                <button id="exploreBtn" class="secondary-btn" type="button">Explore work network</button>
+              </div>
+            </div>
+            <div class="orb">CO-OP<br />GRID</div>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card"><span>Workers online</span><strong id="workersOnline">0</strong></div>
+            <div class="stat-card"><span>Registered users</span><strong id="registeredUsers">0</strong></div>
+            <div class="stat-card"><span>Active jobs</span><strong id="activeJobs">0</strong></div>
+            <div class="stat-card"><span>Completed jobs</span><strong id="completedJobs">0</strong></div>
+          </div>
+
+          <div class="dashboard-grid">
+            <div class="panel chart-panel" id="analytics">
+              <div class="panel-header"><h3>Request velocity</h3><span class="tag">Local model</span></div>
+              <svg id="velocityChart" viewBox="0 0 520 200" preserveAspectRatio="none" aria-label="Request velocity chart">
+                <path id="chartArea" d="" fill="rgba(32, 211, 255, 0.12)"></path>
+                <path id="chartLine" d="" fill="none" stroke="#20d3ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </div>
+            <div class="panel donut-panel" id="workerNetwork">
+              <div class="panel-header"><h3>Service mix</h3></div>
+              <div class="donut-wrap"><div class="donut-chart"><div class="donut-center"></div></div></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="request-card" id="requestSection">
+          <div class="request-header"><h2>Request Cooperative Worker Service</h2><button id="fastDispatchBtn" class="dispatch-btn" type="button">Fast dispatch</button></div>
+          <div class="form-grid">
+            <div class="field"><label for="serviceSelect">Service category</label><select id="serviceSelect"><option value="Electrical">Electrical</option><option value="Plumbing" selected>Plumbing</option><option value="Cleaner">Cleaning</option></select></div>
+            <div class="field"><label for="zoneSelect">Service location / zone</label><select id="zoneSelect"><option>North District</option><option>Central District</option><option>East District</option></select></div>
+          </div>
+          <div class="priority-block"><label>Priority level</label><div class="priority-row"><button type="button" class="priority-option" data-priority="Low">☘ Low</button><button type="button" class="priority-option active" data-priority="Medium">⚑ Medium</button><button type="button" class="priority-option" data-priority="High">✦ High</button></div></div>
+          <div class="details-block"><label for="detailsInput">Requirement details</label><textarea id="detailsInput" placeholder="Describe the issue or assistance required in detail..."></textarea></div>
+          <div id="requestStatus" class="status-message">Ready to dispatch.</div>
+          <button id="submitRequestBtn" class="submit-btn" type="button">Submit Service Request →</button>
+        </section>
+        <div id="bookings" class="hidden-anchor"></div><div id="customers" class="hidden-anchor"></div><div id="forecast" class="hidden-anchor"></div>
+      </main>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
