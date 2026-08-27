@@ -1,4 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const apiBase = window.location.hostname.endsWith("github.io")
+    ? "https://coop-connect-backend-2.onrender.com"
+    : "";
+  const apiUrl = (path) => `${apiBase}${path}`;
   const navItems = document.querySelectorAll(".nav-item");
 
   navItems.forEach((item) => {
@@ -35,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const loadFeature = async (path, successMessage) => {
     try {
-      const response = await fetch(path);
+      const response = await fetch(apiUrl(path));
       if (!response.ok) throw new Error("Backend unavailable.");
       const data = await response.json();
       const count = Object.values(data).find((value) => Array.isArray(value))?.length ?? 0;
@@ -47,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const loadForecast = async () => {
     try {
-      const response = await fetch("/api/admin/predict-demand", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ service: serviceSelect.value, days_ahead: 7 }) });
+      const response = await fetch(apiUrl("/api/admin/predict-demand"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ service: serviceSelect.value, days_ahead: 7 }) });
       if (!response.ok) throw new Error("Forecast unavailable.");
       const data = await response.json();
       setStatus(`${data.demand_level}: ${data.action_recommended}`);
@@ -96,7 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
     mapResultCount.textContent = "Searching...";
     mapResults.innerHTML = "Finding available workers...";
     try {
-      const response = await fetch("/api/match", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ service, customer_lat: userLocation.lat, customer_lon: userLocation.lon }) });
+      const response = await fetch(apiUrl("/api/match"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ service, customer_lat: userLocation.lat, customer_lon: userLocation.lon }) });
       if (!response.ok) throw new Error("Backend unavailable.");
       const data = await response.json();
       const workers = data.matches || [];
@@ -140,7 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const dispatch = async () => {
     setStatus("Finding available workers...");
     try {
-      const response = await fetch("/api/match", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ service: serviceSelect.value, customer_lat: 22.5726, customer_lon: 88.3639 }) });
+      const response = await fetch(apiUrl("/api/match"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ service: serviceSelect.value, customer_lat: 22.5726, customer_lon: 88.3639 }) });
       if (!response.ok) throw new Error("Matching service unavailable.");
       const data = await response.json();
       const match = (data.matches || [])[0];
@@ -153,7 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("submitRequestBtn").addEventListener("click", dispatch);
   document.getElementById("fastDispatchBtn").addEventListener("click", dispatch);
 
-  fetch("/api/admin/stats").then((response) => {
+  fetch(apiUrl("/api/admin/stats")).then((response) => {
     if (!response.ok) throw new Error("Backend unavailable.");
     return response.json();
   }).then((data) => {
