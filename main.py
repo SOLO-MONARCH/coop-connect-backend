@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 from sqlalchemy.orm import Session
 import math
+import os
 
 import models
 from database import engine, SessionLocal
@@ -12,6 +13,11 @@ from database import engine, SessionLocal
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="CO-OP CONNECT API")
+
+configured_origins = os.getenv("FRONTEND_ORIGINS", "*")
+allowed_origins = [
+    origin.strip() for origin in configured_origins.split(",") if origin.strip()
+]
 
 @app.get("/")
 def read_root():
@@ -24,8 +30,8 @@ def read_root():
 # Enable CORS for Flutter & React integration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=allowed_origins,
+    allow_credentials=allowed_origins != ["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -136,8 +142,12 @@ def match_workers(request: MatchRequest, db: Session = Depends(get_db)):
         results.append({
             "worker_id": w.id,
             "name": w.name,
+            "service": w.service,
             "distance_km": round(dist, 2),
             "rating": w.rating,
+            "lat": w.lat,
+            "lon": w.lon,
+            "exp_years": w.exp_years,
             "match_score": match_percentage
         })
     
