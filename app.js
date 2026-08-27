@@ -14,11 +14,23 @@ document.addEventListener("DOMContentLoaded", () => {
       if (label === "Bookings") loadFeature("/api/bookings", "Bookings loaded.");
       if (label === "Customers") loadFeature("/api/users", "Customers loaded.");
       if (label === "AI Forecast") loadForecast();
+      if (label === "Map Match Search") {
+        setTimeout(() => map.invalidateSize(), 250);
+        searchWorkers();
+      }
     });
   });
 
   const serviceSelect = document.getElementById("serviceSelect");
   const statusMessage = document.getElementById("requestStatus");
+  const mapServiceSelect = document.getElementById("mapServiceSelect");
+  const mapResults = document.getElementById("workerResults");
+  const mapResultCount = document.getElementById("mapResultCount");
+  const map = L.map("workerMap").setView([22.5726, 88.3639], 13);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "&copy; OpenStreetMap contributors", maxZoom: 19 }).addTo(map);
+  const markers = L.layerGroup().addTo(map);
+  const userMarker = L.marker([22.5726, 88.3639]).addTo(markers).bindPopup("Your location");
+  let userLocation = { lat: 22.5726, lon: 88.3639 };
   const setStatus = (message, error = false) => {
     statusMessage.textContent = message;
     statusMessage.classList.toggle("error", error);
@@ -46,6 +58,42 @@ document.addEventListener("DOMContentLoaded", () => {
       setStatus(error.message, true);
     }
   };
+
+  async function searchWorkers() {
+    const service = mapServiceSelect.value;
+    mapResultCount.textContent = "Searching...";
+    mapResults.innerHTML = "Finding available workers...";
+    try {
+      const response = await fetch("/api/match", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ service, customer_lat: userLocation.lat, customer_lon: userLocation.lon }) });
+      if (!response.ok) throw new Error("Backend unavailable.");
+      const data = await response.json();
+      const workers = data.matches || [];
+      markers.clearLayers();
+      userMarker.addTo(markers);
+      workers.forEach((worker) => {
+        if (worker.lat && worker.lon) L.marker([worker.lat, worker.lon]).addTo(markers).bindPopup(`<strong>${worker.name}</strong><br>${worker.service}<br>${worker.match_score}% match`);
+      });
+      map.setView([userLocation.lat, userLocation.lon], 13);
+      mapResultCount.textContent = `${workers.length} found`;
+      mapResults.innerHTML = workers.length ? workers.map((worker) => `<div class="worker-result"><strong>${worker.name}</strong><span>${worker.service} · ${worker.match_score}% match · ${worker.distance_km} km</span></div>`).join("") : "No available workers found.";
+    } catch (error) {
+      mapResultCount.textContent = "Unavailable";
+      mapResults.innerHTML = `<span class="error-text">${error.message}</span>`;
+    }
+  }
+
+  document.getElementById("searchWorkersBtn").addEventListener("click", searchWorkers);
+  mapServiceSelect.addEventListener("change", searchWorkers);
+  document.getElementById("useLocationBtn").addEventListener("click", () => {
+    if (!navigator.geolocation) return setStatus("Location is not available in this browser.", true);
+    navigator.geolocation.getCurrentPosition((position) => {
+      userLocation = { lat: position.coords.latitude, lon: position.coords.longitude };
+      userMarker.setLatLng([userLocation.lat, userLocation.lon]);
+      map.setView([userLocation.lat, userLocation.lon], 13);
+      setStatus("Location updated. Searching nearby workers...");
+      searchWorkers();
+    }, () => setStatus("Location permission was not granted.", true));
+  });
 
   document.querySelectorAll(".priority-option").forEach((option) => {
     option.addEventListener("click", () => {
@@ -86,4 +134,5 @@ document.addEventListener("DOMContentLoaded", () => {
   const points = [18, 26, 22, 30, 33, 41, 48].map((value, index) => `${18 + index * 80.6},${182 - value * 3.2}`);
   document.getElementById("chartLine").setAttribute("d", `M ${points.join(" L ")}`);
   document.getElementById("chartArea").setAttribute("d", `M ${points.join(" L ")} L 502,182 L 18,182 Z`);
+  setTimeout(() => map.invalidateSize(), 100);
 });

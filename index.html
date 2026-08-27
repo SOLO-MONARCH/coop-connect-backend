@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
@@ -80,6 +81,26 @@
               <div class="donut-wrap"><div class="donut-chart"><div class="donut-center"></div></div></div>
             </div>
           </div>
+
+          <div class="map-panel panel" id="mapMatchSearch">
+            <div class="panel-header"><h3>Map match search</h3><span class="tag">Live workers</span></div>
+            <div class="map-toolbar">
+              <select id="mapServiceSelect" aria-label="Map service category">
+                <option value="Plumbing" selected>Plumbing</option>
+                <option value="Electrical">Electrical</option>
+                <option value="Cleaner">Cleaning</option>
+              </select>
+              <button id="useLocationBtn" class="secondary-btn" type="button">Use my location</button>
+              <button id="searchWorkersBtn" class="primary-btn" type="button">Search workers</button>
+            </div>
+            <div class="map-layout">
+              <div id="workerMap" aria-label="Map showing nearby cooperative workers"></div>
+              <div class="map-results">
+                <div class="results-heading"><strong id="mapResultTitle">Nearby workers</strong><span id="mapResultCount">Ready</span></div>
+                <div id="workerResults" class="worker-results">Choose a service and search the network.</div>
+              </div>
+            </div>
+          </div>
         </section>
 
         <section class="request-card" id="requestSection">
@@ -97,6 +118,7 @@
       </main>
     </div>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="/app.js"></script>
   </body>
 </html>
