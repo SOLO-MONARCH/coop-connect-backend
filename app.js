@@ -10,10 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
 
       const label = item.textContent.trim();
-      if (label === "Worker Network") loadFeature("/api/workers", "Worker network connected.");
-      if (label === "Bookings") loadFeature("/api/bookings", "Bookings loaded.");
-      if (label === "Customers") loadFeature("/api/users", "Customers loaded.");
-      if (label === "AI Forecast") loadForecast();
+      renderModule(label);
       if (label === "Map Match Search") {
         setTimeout(() => map.invalidateSize(), 250);
         searchWorkers();
@@ -58,6 +55,41 @@ document.addEventListener("DOMContentLoaded", () => {
       setStatus(error.message, true);
     }
   };
+
+  async function renderModule(label) {
+    const moduleView = document.getElementById("moduleView");
+    if (label === "Command Center") {
+      document.getElementById("command-center").scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+    if (label === "Citizen Dispatch") {
+      document.getElementById("requestSection").scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+    const configurations = {
+      "Worker Network": { path: "/api/workers", title: "Worker Network", empty: "No workers registered yet." },
+      "Bookings": { path: "/api/bookings", title: "Bookings", empty: "No bookings created yet." },
+      "Customers": { path: "/api/users", title: "Customers", empty: "No customers registered yet." },
+      "Analytics": { path: "/api/admin/stats", title: "Analytics", empty: "No analytics available." },
+      "AI Forecast": { path: "/api/admin/predict-demand", title: "AI Forecast", empty: "Forecast unavailable." }
+    };
+    const config = configurations[label];
+    if (!config) return;
+    moduleView.innerHTML = `<div class="module-header"><div><div class="subhead">OPERATIONS MODULE</div><h2>${config.title}</h2></div><span class="tag">Backend connected</span></div><div class="module-body">Loading ${config.title.toLowerCase()}...</div>`;
+    moduleView.scrollIntoView({ behavior: "smooth", block: "start" });
+    try {
+      const options = label === "AI Forecast" ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ service: serviceSelect.value, days_ahead: 7 }) } : {};
+      const response = await fetch(config.path, options);
+      if (!response.ok) throw new Error("Backend unavailable.");
+      const data = await response.json();
+      const body = moduleView.querySelector(".module-body");
+      if (label === "AI Forecast") body.innerHTML = `<div class="metric"><strong>${data.predicted_requests}</strong><span>estimated requests</span></div><div class="module-copy">${data.demand_level}<br>${data.action_recommended}</div>`;
+      else if (label === "Analytics") body.innerHTML = Object.entries(data).map(([key, value]) => `<div class="metric"><strong>${value}</strong><span>${key.replaceAll("_", " ")}</span></div>`).join("");
+      else { const records = Object.values(data).find((value) => Array.isArray(value)) || []; body.innerHTML = records.length ? records.map((record) => `<div class="record"><strong>${record.name || `Booking #${record.id}` || "Record"}</strong><span>${record.service || record.email || record.status || "Available"}</span></div>`).join("") : config.empty; }
+    } catch (error) {
+      moduleView.querySelector(".module-body").innerHTML = `<span class="error-text">${error.message}</span>`;
+    }
+  }
 
   async function searchWorkers() {
     const service = mapServiceSelect.value;
